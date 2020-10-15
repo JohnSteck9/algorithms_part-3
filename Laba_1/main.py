@@ -17,20 +17,17 @@ class Sort:
         for index in range(1, len(array)):
             key_item = array[index]
             item = index - 1
-            # Sort.insertion_sort_swap_counter += 0
             while item >= 0 and comparing_function(key_item, array[item]):
-                Sort.insertion_sort_comparison_counter += 2
+                Sort.insertion_sort_comparison_counter += 1
                 array[item + 1] = array[item]
+                Sort.insertion_sort_swap_counter += 1
                 item -= 1
-                # Sort.insertion_sort_swap_counter += 2
             array[item + 1] = key_item
-            # Sort.insertion_sort_swap_counter += 1
         return array
 
     @staticmethod
     def merge_sort(array):
         if len(array) < 2:
-            Sort.merge_sort_comparison_counter += 1
             return array
 
         midpoint = len(array) // 2
@@ -48,10 +45,10 @@ class Sort:
 
         result = []
         index_left = index_right = 0
-
+        Sort.merge_sort_comparison_counter += 1
         while len(result) < len(left) + len(right):
             if comparing_function(left[index_left], right[index_right]):
-                Sort.merge_sort_comparison_counter += 1
+                Sort.merge_sort_swap_counter += 1
                 result.append(left[index_left])
                 index_left += 1
             else:
@@ -91,16 +88,16 @@ class File:
         except FileNotFoundError as err:
             print("FileNotFoundError:", err)
 
-    def write_csv(self, text):
-        with open(self.csv_filename, "w+") as writer:
-            writer.write(text)
+    # def write_csv(self, text):
+    #     with open(self.csv_filename, "w") as writer:
+    #         writer.write(text)
 
 
 class Elevator:
     def __init__(self, name, load_capacity, engine_power):
-        self.name = name
-        self.load_capacity = load_capacity
-        self.engine_power = engine_power
+        self.name = str(name)
+        self.load_capacity = int(load_capacity)
+        self.engine_power = int(engine_power)
 
     def __repr__(self):
         return "Elevator(" + repr(self.name) + ")"
@@ -120,10 +117,11 @@ if __name__ == '__main__':
     print("Sorting Algorithm:", sort_type)
     file = File(filename)
     list_of_objects = file.read_csv()
+
     time_start = time.time()
     if sort_type == "insertion_sort":
         new_list = Sort.insertion_sort(
-            list_of_objects, (lambda x, y: x.name < y.name))
+            list_of_objects, (lambda x, y: x.load_capacity < y.load_capacity))
         print("Compare counter:", Sort.insertion_sort_comparison_counter)
         print("Swap counter:", Sort.insertion_sort_swap_counter)
     elif sort_type == "merge_sort":
