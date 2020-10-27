@@ -20,7 +20,6 @@ class Sort:
             while item >= 0 and comparing_function(key_item, array[item]):
                 Sort.insertion_sort_comparison_counter += 1
                 array[item + 1] = array[item]
-                Sort.insertion_sort_swap_counter += 1
                 item -= 1
             array[item + 1] = key_item
         return array
