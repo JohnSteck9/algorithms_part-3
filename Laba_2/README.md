@@ -2,4 +2,4 @@
 ## Tusk - poker.pdf
 
 ## Usage 
-    puthon cards.py
+    python cards.py
