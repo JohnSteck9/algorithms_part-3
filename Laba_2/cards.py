@@ -42,20 +42,20 @@ def max_sequence(array: list, joker_num: int) -> int:
     sequence = []
     comp_sequence = []
     num_sequence = 0
-    max = 0
-    seq = 0
+    max_sequence = 0
+    new_sequence = 0
     jok = joker_num
 
     if len(array) == 0:
         return num_sequence
     else:
         comp_sequence.append(array[joker_num])  # * ставимо перше значення
-        seq += 1
+        new_sequence += 1
 
     for i in range(joker_num, len(array) - joker_num):
         j = i + 1
+        # while len(array[i:]) >= max_sequence:
         while True:
-        # while len(array[i:]) >= max:
             if array[-1] == array[j - 1]:
                 break
 
@@ -65,32 +65,32 @@ def max_sequence(array: list, joker_num: int) -> int:
 
             elif int(comp_sequence[-1]) + 1 == array[j]:  # * якщо число послідовне (додаємо до comp_sequence)
                 comp_sequence.append(array[j])
-                seq += 1
+                new_sequence += 1
                 j += 1
                 continue
 
             else:  # -- використовуємо джокери
                 while int(comp_sequence[-1]) + 1 < array[j] and jok > 0:
                     comp_sequence.append(int(comp_sequence[-1]) + 1)
-                    seq += 1
+                    new_sequence += 1
                     jok -= 1
                 if int(comp_sequence[-1]) + 1 == array[j]:  # -- якщо дійшли до послідовності
                     comp_sequence.append(array[j])
-                    seq += 1
+                    new_sequence += 1
                     j += 1
                     continue
                     # -- якщо джокери закінчилися і нема послідовності повістю виходимо з циклу
                     # -- записуємо послідовність і порівнюємо її з максимальною
                 elif jok == 0:
-                    if max < seq:
-                        max = seq
+                    if max_sequence < new_sequence:
+                        max_sequence = new_sequence
                         sequence = comp_sequence[:]
-                        comp_sequence = [array[i+1]]
-                        seq = 1
+                        comp_sequence = [array[i + 1]]
+                        new_sequence = 1
                         jok = joker_num
                     else:
-                        comp_sequence = [array[i+1]]
-                        seq = 1
+                        comp_sequence = [array[i + 1]]
+                        new_sequence = 1
                         jok = joker_num
                     # ?continue
                 break
@@ -98,21 +98,21 @@ def max_sequence(array: list, joker_num: int) -> int:
     while jok > 0:
         try:
             if comp_sequence[-1] < 1000000:  # * блокуємо вихід через верхню межу
-                comp_sequence.append(int(comp_sequence[-1]+1))
+                comp_sequence.append(int(comp_sequence[-1] + 1))
             else:
-                comp_sequence.insert(0, int(comp_sequence[0]-1))
+                comp_sequence.insert(0, int(comp_sequence[0] - 1))
         except IndexError:
             return joker_num
         jok -= 1
-        seq += 1
-    if max < seq:
-        max = seq
-        # seq = 0
+        new_sequence += 1
+    if max_sequence < new_sequence:
+        max_sequence = new_sequence
+        # new_sequence = 0
     if len(sequence) < len(comp_sequence):
         sequence = comp_sequence[:]
         # comp_sequence = []
-    print("Array: ", sequence, "Max: ", max)
-    return max
+    print("Array: ", sequence, "Max: ", max_sequence)
+    return max_sequence
 
 
 if __name__ == '__main__':
