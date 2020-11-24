@@ -2,34 +2,11 @@
 #               Long poker                  #
 #############################################
 
-from random import randint
 from typing import List
 from sorting_algo import Sort
 
 
 class DeckGeneration:
-
-    def __init__(self, length=None, min_v=None, max_v=None):
-        self.deck_length = length
-        self.min_value = min_v
-        self.max_value = max_v
-
-    def user_inputs(self):
-        cards_deck = []
-
-        if self.deck_length <= 0 \
-                or self.min_value <= 0 \
-                or self.min_value > self.max_value \
-                or self.max_value > 1000000:
-            print("Incorrect input!"), exit()
-        elif self.deck_length == "exit" or self.min_value == "exit" or self.max_value == "exit":
-            exit()
-
-        while self.deck_length > 0:
-            self.deck_length -= 1
-            cards_deck.append(randint(min_value, max_value))
-        # print(cards_deck)
-        return cards_deck
 
     @staticmethod
     def read_file(file_name: str) -> List[int]:
@@ -42,14 +19,14 @@ class DeckGeneration:
             print(f"Value Error in file: {file_name}\n", error, end=""), exit()
 
 
-def joker(array: list, min_v: int, max_v: int) -> List[int]:
-    if min_v < 1 or max_v < 1:
-        raise ValueError("Invalid max or min input")
+def joker(array: list):
+    joker_n = 0
     for i in range(len(array)):
         if array[i] == 0:
-            array[i] = randint(min_v, max_v)
+            joker_n += 1
         else:
-            return array
+            return joker_n
+    return joker_n
 
 
 def output(line):
@@ -57,38 +34,112 @@ def output(line):
         file.write(str(line))
 
 
-def max_sequence(array: list) -> int:
+def sequence_exit():
+    pass
+
+
+def max_sequence(array: list, joker_num: int) -> int:
+    max_sequence = []
     sequence = []
-    comp_sequence = []
-    boo = True
+    jok = joker_num
+    boo = False
+    array_end = False
+
     if len(array) == 0:
         return 0
-
-    for i in range(len(array) - 1):
-        if boo is True:
-            comp_sequence.append(array[i])
-            boo = False
-        if array[i] == (array[i + 1]):
-            # print("same: ", deck[i], deck[i + 1])
-            continue
-        elif array[i] + 1 == (array[i + 1]):
-            comp_sequence.append(array[i + 1])
-            # print("comp_sequence: ", comp_sequence)
-        else:
-            boo = True
-            comp_sequence = []
-        if len(comp_sequence) >= len(sequence):
-            sequence = comp_sequence[:]
-
-    if len(sequence) == 0:
+    elif len(array) == 1:
         return 1
+    else:   # * якщо є тільки джокери
+        try:
+            sequence = [array[joker_num]]
+        except IndexError:
+            return joker_num
 
-    print("Sequence of cards: ", sequence)
-    return len(sequence)
+    for i in range(joker_num, len(array)):
+        # 0 0 0 [3 - 5 6 - 8 9 - - - 13 - - 16 17 18 ... 30 31 - -33 34 35 36 37]
 
-# def circle(r):
-#     if type(r) not in [int, float]:
-#         raise TypeError("text")
+        # пропускаємо якщо вставити 1 елемент в список або минуле значення послідовне
+        if i - joker_num > 0:
+            # * щоб не вийти за межі array
+            if array[i] == array[-1]:
+                if array[i] == sequence[-1] + 1:
+                    sequence.append(array[i])
+                array_end = True
+                break
+
+        if boo is True:
+            sequence.append(array[i])
+            boo = False
+
+        j = i + 1
+        while True:
+            # * щоб не вийти з циклу
+            if array[j] == array[-1]:
+                if array[j] == sequence[-1] + 1:
+                    sequence.append(array[j])
+                array_end = True
+                break
+
+            # -- якщо наступна карта на 1 більша ніж попередня в sequence[]
+            if array[j] == sequence[-1] + 1:
+                sequence.append(array[j])
+                j += 1
+                continue
+
+            # -- use jokers
+            else:
+                # -- використовуємо джокери поки не закінчаться або не натрапимо на послідовну карту
+                while array[j] > sequence[-1] + 1 and jok > 0:
+                    sequence.append(int(sequence[-1]) + 1)
+                    jok -= 1
+
+                # -- якщо натрпаили на послідовну карту -> add
+                if int(sequence[-1]) + 1 == array[j]:
+                    sequence.append(array[j])
+                    j += 1
+                    continue
+                    # -- якщо джокери закінчилися і нема послідовності
+                    # * порівнюємо sequence[] з max_sequence[] -> break
+                elif jok == 0:
+                    if len(max_sequence) < len(sequence):
+                        max_sequence = sequence[:]
+                        boo = True
+                        sequence = []
+                        jok = joker_num
+                        break
+
+                    else:
+                        boo = True
+                        sequence = []
+                        # sequence = [array[i + 1]]
+                        jok = joker_num
+                        break
+
+                elif array[j] == array[-1]:
+                    print("GG")
+                    break
+                else:
+                    print("@@@")
+                    break
+        if array_end is True:
+            break
+        print("OK")
+
+    while jok > 0:
+        if sequence[-1] < 1000000:  # * блокуємо вихід через верхню межу
+            sequence.append(int(sequence[-1] + 1))
+        else:
+            sequence.insert(0, int(sequence[0] - 1))
+        jok -= 1
+
+    if len(max_sequence) < len(sequence):
+        max_sequence = sequence[:]
+        print("Max: ", max_sequence)
+        return len(max_sequence)
+    else:
+        print("Max: ", max_sequence)
+        print(max_sequence)
+        return len(max_sequence)
 
 
 if __name__ == '__main__':
@@ -96,52 +147,17 @@ if __name__ == '__main__':
     deck_length = None
     min_value = None
     max_value = None
-    deck = []
 
-    print("Please select mode:")
-    print("1 - random mode")
-    print("2 - user mode")
+    deck = DeckGeneration.read_file("lngpok.in")
+    print("User Deck: ", deck)
+    Sort.quick_sort(deck, 0, (len(deck) - 1))
+    print("Quick Sorted Deck: ", deck)
 
-    try:
-        select_mode = int(input("Enter mode: "))
-    except ValueError as err:
-        print(err), exit()
+    joker_num = joker(deck)
 
-    if select_mode == 1:
-        try:
-            deck_length = int(input("Enter the length of the deck: "))
-            min_value = int(input("Enter min value: "))
-            max_value = int(input("Enter max value: "))
-        except ValueError as err:
-            print(err), exit()
+    # Sort.insertion_sort(deck)
+    # print("Insertion Sorted Deck: ", deck)
 
-        deck_generation = DeckGeneration(deck_length, min_value, max_value)
-        deck = deck_generation.user_inputs()
-        print("Random Cards Deck: ", deck)
-
-        Sort.quick_sort(deck, 0, (len(deck) - 1))
-        print("Quick Sorted Deck: ", deck)
-
-    elif select_mode == 2:
-        deck = DeckGeneration.read_file("lngpok.in")
-        print("User Deck: ", deck)
-        Sort.quick_sort(deck, 0, (len(deck) - 1))
-        print("Quick Sorted Deck: ", deck)
-
-        if deck[0] == 0:
-            try:
-                min_value = int(input("Enter joker min value: "))
-                max_value = int(input("Enter joker max value: "))
-            except ValueError as err:
-                print(err), exit()
-
-            joker(deck, min_value, max_value)
-            print("Deck with jokers:", deck)
-            Sort.insertion_sort(deck)
-            print("Insertion Sorted Deck: ", deck)
-    else:
-        print("*mode not found -_-"), exit()
-
-    num = max_sequence(deck)
+    num = max_sequence(deck, joker_num)
     print(num)
     output(num)
