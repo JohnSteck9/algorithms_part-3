@@ -39,80 +39,107 @@ def sequence_exit():
 
 
 def max_sequence(array: list, joker_num: int) -> int:
+    max_sequence = []
     sequence = []
-    comp_sequence = []
-    num_sequence = 0
-    max_sequence = 0
-    new_sequence = 0
     jok = joker_num
+    boo = False
+    array_end = False
 
     if len(array) == 0:
-        return num_sequence
-    else:
-        comp_sequence.append(array[joker_num])  # * ставимо перше значення
-        new_sequence += 1
-
-    for i in range(joker_num, len(array) - joker_num):
-        j = i + 1
-        # while len(array[i:]) >= max_sequence:
-        while True:
-            if array[-1] == array[j - 1]:
-                break
-
-            if array[j - 1] == array[j]:  # * скіпаєм повторювальні значення
-                j += 1
-                continue
-
-            elif int(comp_sequence[-1]) + 1 == array[j]:  # * якщо число послідовне (додаємо до comp_sequence)
-                comp_sequence.append(array[j])
-                new_sequence += 1
-                j += 1
-                continue
-
-            else:  # -- використовуємо джокери
-                while int(comp_sequence[-1]) + 1 < array[j] and jok > 0:
-                    comp_sequence.append(int(comp_sequence[-1]) + 1)
-                    new_sequence += 1
-                    jok -= 1
-                if int(comp_sequence[-1]) + 1 == array[j]:  # -- якщо дійшли до послідовності
-                    comp_sequence.append(array[j])
-                    new_sequence += 1
-                    j += 1
-                    continue
-                    # -- якщо джокери закінчилися і нема послідовності повістю виходимо з циклу
-                    # -- записуємо послідовність і порівнюємо її з максимальною
-                elif jok == 0:
-                    if max_sequence < new_sequence:
-                        max_sequence = new_sequence
-                        sequence = comp_sequence[:]
-                        comp_sequence = [array[i + 1]]
-                        new_sequence = 1
-                        jok = joker_num
-                    else:
-                        comp_sequence = [array[i + 1]]
-                        new_sequence = 1
-                        jok = joker_num
-                    # ?continue
-                break
-            # break
-    while jok > 0:
+        return 0
+    elif len(array) == 1:
+        return 1
+    else:   # * якщо є тільки джокери
         try:
-            if comp_sequence[-1] < 1000000:  # * блокуємо вихід через верхню межу
-                comp_sequence.append(int(comp_sequence[-1] + 1))
-            else:
-                comp_sequence.insert(0, int(comp_sequence[0] - 1))
+            sequence = [array[joker_num]]
         except IndexError:
             return joker_num
+
+    for i in range(joker_num, len(array)):
+        # 0 0 0 [3 - 5 6 - 8 9 - - - 13 - - 16 17 18 ... 30 31 - -33 34 35 36 37]
+
+        # пропускаємо якщо вставити 1 елемент в список або минуле значення послідовне
+        if i - joker_num > 0:
+            # * щоб не вийти за межі array
+            if array[i] == array[-1]:
+                if array[i] == sequence[-1] + 1:
+                    sequence.append(array[i])
+                array_end = True
+                break
+
+        if boo is True:
+            sequence.append(array[i])
+            boo = False
+
+        j = i + 1
+        while True:
+            # * щоб не вийти з циклу
+            if array[j] == array[-1]:
+                if array[j] == sequence[-1] + 1:
+                    sequence.append(array[j])
+                array_end = True
+                break
+
+            # -- якщо наступна карта на 1 більша ніж попередня в sequence[]
+            if array[j] == sequence[-1] + 1:
+                sequence.append(array[j])
+                j += 1
+                continue
+
+            # -- use jokers
+            else:
+                # -- використовуємо джокери поки не закінчаться або не натрапимо на послідовну карту
+                while array[j] > sequence[-1] + 1 and jok > 0:
+                    sequence.append(int(sequence[-1]) + 1)
+                    jok -= 1
+
+                # -- якщо натрпаили на послідовну карту -> add
+                if int(sequence[-1]) + 1 == array[j]:
+                    sequence.append(array[j])
+                    j += 1
+                    continue
+                    # -- якщо джокери закінчилися і нема послідовності
+                    # * порівнюємо sequence[] з max_sequence[] -> break
+                elif jok == 0:
+                    if len(max_sequence) < len(sequence):
+                        max_sequence = sequence[:]
+                        boo = True
+                        sequence = []
+                        jok = joker_num
+                        break
+
+                    else:
+                        boo = True
+                        sequence = []
+                        # sequence = [array[i + 1]]
+                        jok = joker_num
+                        break
+
+                elif array[j] == array[-1]:
+                    print("GG")
+                    break
+                else:
+                    print("@@@")
+                    break
+        if array_end is True:
+            break
+        print("OK")
+
+    while jok > 0:
+        if sequence[-1] < 1000000:  # * блокуємо вихід через верхню межу
+            sequence.append(int(sequence[-1] + 1))
+        else:
+            sequence.insert(0, int(sequence[0] - 1))
         jok -= 1
-        new_sequence += 1
-    if max_sequence < new_sequence:
-        max_sequence = new_sequence
-        # new_sequence = 0
-    if len(sequence) < len(comp_sequence):
-        sequence = comp_sequence[:]
-        # comp_sequence = []
-    print("Array: ", sequence, "Max: ", max_sequence)
-    return max_sequence
+
+    if len(max_sequence) < len(sequence):
+        max_sequence = sequence[:]
+        print("Max: ", max_sequence)
+        return len(max_sequence)
+    else:
+        print("Max: ", max_sequence)
+        print(max_sequence)
+        return len(max_sequence)
 
 
 if __name__ == '__main__':
